@@ -1,0 +1,166 @@
+using System;
+using System.Collections.Generic;
+
+namespace LibraryManagement
+{
+  public class Book
+  {
+    public string Title { get; private set; }
+    public string Author { get; private set; }
+    public string ISBN { get; private set; }
+    public int CopiesAvailable { get; private set; }
+
+    public Book(string title, string author, string isbn, int copiesAvailable)
+        {
+            Title = title;
+            Author = author;
+            ISBN = isbn;
+            CopiesAvailable = copiesAvailable;
+        }
+    public void AddCopies(int count)
+        {
+            if (count > 0)
+            {
+                CopiesAvailable += count;
+                Console.WriteLine($"Добавлено {count} экземпляров книги '{Title}'. доступно: {CopiesAvailable}");
+            }
+            else
+            {
+                Console.WriteLine("Количество экземпляров должно быть больше нуля.");
+            }
+        }
+    public bool BorrowCopy()
+        {
+            if (CopiesAvailable > 0)
+            {
+                CopiesAvailable--;
+                Console.WriteLine($"Заимствован экземпляр книги '{Title}'. Осталось экземпляров: {CopiesAvailable}");
+                return true;
+            }
+            else
+            {
+                Console.WriteLine($"Книга '{Title}' недоступна для заимствования.");
+                return false;
+            }
+        }
+    public void ReturnCopy()
+        {
+            CopiesAvailable++;
+            Console.WriteLine($"Экземпляр книги '{Title}' возвращён. доступно: {CopiesAvailable}");
+        }
+    }
+    public class Reader
+    {
+        public string Name { get; private set; }
+        public int ReaderId { get; private set; }
+
+        public Reader(string name, int readerId)
+        {
+            Name = name;
+            ReaderId = readerId;
+        }
+    }
+    public class Library
+    {
+        private List<Book> books = new List<Book>(); // Список книг
+        private List<Reader> readers = new List<Reader>(); // Список читателей
+
+        public void AddBook(Book book)
+        {
+            books.Add(book);
+            Console.WriteLine($"Книга '{book.Title}' добавлена в библиотеку.");
+        }
+    public void RemoveBook(string isbn)
+        {
+            var book = books.Find(b => b.ISBN == isbn);
+            if (book != null)
+            {
+                books.Remove(book);
+                Console.WriteLine($"Книга '{book.Title}' удалена из библиотеки.");
+            }
+            else
+            {
+                Console.WriteLine("Книга не найдена.");
+            }
+        }
+
+        public void RegisterReader(Reader reader)
+        {
+            readers.Add(reader);
+            Console.WriteLine($"Читатель '{reader.Name}' зарегистрирован.");
+        }
+
+        public void RemoveReader(int readerId)
+        {
+            var reader = readers.Find(r => r.ReaderId == readerId);
+            if (reader != null)
+            {
+                readers.Remove(reader);
+                Console.WriteLine($"Читатель '{reader.Name}' удалён из библиотеки.");
+            }
+            else
+            {
+                Console.WriteLine("Читатель не найден.");
+            }
+        }
+
+        public void BorrowBook(string isbn, int readerId)
+        {
+            var book = books.Find(b => b.ISBN == isbn);
+            var reader = readers.Find(r => r.ReaderId == readerId);
+
+            if (book != null && reader != null)
+            {
+                if (book.BorrowCopy())
+                {
+                    Console.WriteLine($"Читатель '{reader.Name}' заимствовал '{book.Title}'.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Книга или читатель не найдены.");
+            }
+        }
+
+        public void ReturnBook(string isbn)
+        {
+            var book = books.Find(b => b.ISBN == isbn);
+            if (book != null)
+            {
+                book.ReturnCopy();
+            }
+            else
+            {
+                Console.WriteLine("не найдена.");
+            }
+        }
+    }
+
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            Library library = new Library();
+
+            Book book1 = new Book("Великий Гэтсби", "Ф. Скотт Фицджеральд", "9780743273565", 3);
+            Book book2 = new Book("1984", "Джордж Оруэлл", "9780451524935", 5);
+
+            library.AddBook(book1);
+            library.AddBook(book2);
+
+            Reader reader1 = new Reader("Алиса", 1);
+            Reader reader2 = new Reader("Боб", 2);
+
+            library.RegisterReader(reader1);
+            library.RegisterReader(reader2);
+
+            library.BorrowBook("9780743273565", 1); // Алиса заимствует Великий Гэтсби
+            library.BorrowBook("9780451524935", 2); // Боб заимствует 1984
+
+            library.ReturnBook("9780743273565"); // Возврат Великого Гэтсби
+
+            library.RemoveBook("9780451524935"); // Удаление 1984
+            library.RemoveReader(2); // Удаление Боба
+        }
+    }
+}
